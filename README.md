@@ -1,53 +1,30 @@
-# Vestra Pulse — Mobile
+# Vestra Pulse
 
-React Native / Expo client for Vestra. **Scaffold only** — not implemented yet.
+The separate mobile-client repository for Vestra.
 
-## Why Expo and not Flutter
+**Planning scaffold only.** There is no implemented Expo/React Native app, application entry point, mobile build or deployed mobile API yet. The original two-file scaffold and its history were extracted from `apps/pulse` in [Vestra](https://github.com/amabee/Vestra). This repository does not require a sibling checkout or `workspace:*` dependencies.
 
-Expo keeps Pulse inside the pnpm workspace, so it imports `@vestra/core`,
-`@vestra/types` and `@vestra/api` directly. A Flutter client would be Dart and
-could not share any of that — the business logic would have to be either
-duplicated in Dart or exposed over HTTP. Staying on TypeScript means one
-implementation of search aggregation, normalisation and progress tracking.
+## Repository layout
 
-## Getting started (when work begins)
+- [Vestra](https://github.com/amabee/Vestra): Nova desktop app, its backend/runtime, shared SDK and existing documentation.
+- [Pulse](https://github.com/amabee/Pulse): future mobile-client implementation.
+- [Foundry](https://github.com/amabee/Foundry): native extension sources and registry.
 
-```bash
-cd apps/pulse
-pnpm create expo-app . --template blank-typescript
-```
+The Astra project is outside this extraction and remains unchanged.
 
-Then:
+## Next implementation work
 
-1. Add `@vestra/core`, `@vestra/types` and `@vestra/ui` as `workspace:*` deps.
-2. Configure Metro for the monorepo — it must follow symlinks and watch the
-   workspace root:
+1. Establish the mobile API and authentication contract. The old Atlas route suggestions in the historical scaffold are not an existing mobile backend.
+2. Create the Expo/React Native application and mobile-native UI.
+3. Add explicitly versioned shared contracts or API clients as needed, keeping this repository independently installable.
+4. Add real type checks, device/emulator tests and mobile build CI once application code exists.
 
-   ```js
-   // metro.config.js
-   const { getDefaultConfig } = require("expo/metro-config");
-   const path = require("node:path");
+Provider credentials must stay on the backend; do not embed service secrets in a mobile bundle. The desktop DOM component library is not a React Native UI library.
 
-   const projectRoot = __dirname;
-   const workspaceRoot = path.resolve(projectRoot, "../..");
+Planned areas: home rows, search, watchlist, continue watching, playback and offline metadata caching. These are goals, not implemented features.
 
-   const config = getDefaultConfig(projectRoot);
-   config.watchFolders = [workspaceRoot];
-   config.resolver.nodeModulesPaths = [
-     path.resolve(projectRoot, "node_modules"),
-     path.resolve(workspaceRoot, "node_modules"),
-   ];
-   module.exports = config;
-   ```
+## Local setup
 
-3. Provider calls must NOT run on-device — API keys would ship in the bundle.
-   Point Pulse at Atlas's route handlers (`/api/search`, `/api/watchlist`,
-   `/api/progress`) instead, and reuse `@vestra/types` for the response shapes.
-4. `@vestra/ui` is DOM-based and will not render in React Native. Build a
-   parallel `packages/ui-native` if components need to be shared; `@vestra/core`
-   and `@vestra/types` are already platform-agnostic.
+The repository uses pnpm 11.9.0 and Node 22 or newer. `pnpm install --frozen-lockfile` validates its standalone package setup; there is currently no app to start or build. Application scripts will be added with the implementation, rather than reporting successful placeholder builds.
 
-## Target feature set
-
-Home rows · universal search · watchlist · continue watching · YouTube playback ·
-offline metadata cache.
+MIT; see [LICENSE](LICENSE). Never commit account tokens, signing keys, generated app bundles or device credentials.
